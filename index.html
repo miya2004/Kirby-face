@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Kirby Face</title>
+    <style>
+        :root {
+            --color-body-kirby: #8EACE8;
+            --color-bodyshadow-kirby: #8EACE8;
+            --color-cheeks-kirby: #EFA9CE;
+            --color-eye-outline-kirby: #000;
+            --color-eye-iris-kirby: #000;
+            --color-eye-pupil-kirby: #FFF;
+            --color-eye-kirby: #057FC0;
+            --speed-blinking-eyes: 5000ms;
+            --location-face-horizonal: 0%;
+            --location-face-vertical: 0%;
+            --eyes-perspective-horizontal: 0deg;
+            --eyes-perspective-vertical: 0deg;
+            --location-iris-vertical: 0%;
+            --location-iris-horizontal: 0%;
+            --location-pupil-vertical: 0%;
+            --location-pupil-horizontal: 0%;
+        }
+
+        @font-face {
+            font-family: "Kirby Classic";
+            font-weight: 400;
+            src: url("../fonts/kirby-classic.ttf");
+        }
+
+        @keyframes blink {
+            99% {
+                aspect-ratio: 1/2.5;
+                transform: translateY(0);
+            }
+            100% {
+                aspect-ratio: 100/1;
+                transform: translateY(20vh);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            outline: none;
+            box-sizing: border-box;
+            font-weight: 400;
+        }
+
+        html {
+            color: #000;
+            font-size: 18px;
+            font-family: "Kirby Classic", Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background-color: #f0f0f0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        #egg-container {
+            width: 300px;
+            height: 400px;
+            background-color: var(--color-body-kirby);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 20px 5px var(--color-bodyshadow-kirby) inset;
+        }
+
+        #face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            left: var(--location-face-horizonal);
+            top: var(--location-face-vertical);
+        }
+
+        #tooltip {
+            position: fixed;
+            transform: translateX(10px) translateY(-40px);
+            left: -100%;
+            top: -100%;
+            background-color: #fff;
+            border: 2px solid #000;
+            opacity: 0.5;
+            padding: 5px 10px;
+            border-radius: 5px;
+            z-index: 9;
+        }
+
+        #eyes {
+            position: absolute;
+            top: 30%;
+            left: 25%;
+            width: 50%;
+            display: flex;
+            justify-content: space-between;
+            perspective: 500px;
+            transform: rotateX(var(--eyes-perspective-vertical)) rotateY(var(--eyes-perspective-horizontal));
+            transform-style: preserve-3d;
+        }
+
+        #eyes .eye {
+            position: relative;
+            border: 15px solid var(--color-eye-outline-kirby);
+            border-radius: 50%;
+            width: 30%;
+            aspect-ratio: 1/2.5;
+            background-color: var(--color-eye-kirby);
+            overflow: hidden;
+            animation-name: blink;
+            animation-duration: var(--speed-blinking-eyes);
+            animation-iteration-count: infinite;
+            animation-direction: alternate;
+            animation-fill-mode: both;
+        }
+
+        #eyes .eye:nth-child(1) {
+            rotate: 2deg;
+        }
+
+        #eyes .eye:nth-child(2) {
+            rotate: -2deg;
+        }
+
+        #eyes .eye .iris {
+            position: absolute;
+            top: calc(var(--location-iris-vertical) - 15%);
+            left: -15%;
+            border-radius: 50%;
+            width: 130%;
+            aspect-ratio: 1/2;
+            background-color: black;
+            overflow: hidden;
+        }
+
+        #eyes .eye:nth-child(1) .iris {
+            left: calc(var(--location-iris-horizontal) - 11%);
+        }
+
+        #eyes .eye:nth-child(2) .iris {
+            left: calc(var(--location-iris-horizontal) - 20%);
+        }
+
+        #eyes .eye .iris .pupil {
+            position: absolute;
+            background-color: var(--color-eye-pupil-kirby);
+            border-radius: 50%;
+            width: 70%;
+            left: 15%;
+            aspect-ratio: 1/1.6;
+            top: calc(var(--location-pupil-vertical) + 25%);
+        }
+
+        #eyes .eye:nth-child(1) .iris .pupil {
+            left: calc(var(--location-pupil-horizontal) + 18%);
+        }
+
+        #eyes .eye:nth-child(2) .iris .pupil {
+            left: calc(var(--location-pupil-horizontal) + 11%);
+        }
+
+        #mouth {
+            position: absolute;
+            top: 70%;
+            transform: translateX(-50%);
+            left: 50%;
+            width: 30% !important;
+        }
+
+        #mouth .inner {
+            position: relative;
+            border: 12px solid #000;
+            aspect-ratio: 1/1.25;
+            border-radius: 50%/ 25% 25% 75% 75%;
+            transform: translateX(-50%);
+            left: 50%;
+            background-color: #8f003a;
+            overflow: hidden;
+        }
+
+        #mouth .side {
+            display: none;
+            border: 12px solid #000;
+            border-bottom-color: transparent;
+            border-left-color: transparent;
+            border-right-color: transparent;
+            width: 60%;
+            border-radius: 50%;
+            height: 300px;
+            position: absolute;
+            top: -30%;
+            transform-origin: center center;
+        }
+
+        #mouth .side:nth-of-type(1) {
+            transform: rotate(70deg);
+            left: -190px;
+        }
+
+        #mouth .side:nth-of-type(2) {
+            transform: rotate(-70deg);
+            right: -190px;
+        }
+
+        #mouth.closed .inner {
+            aspect-ratio: unset;
+            height: 150px;
+            background-color: transparent;
+            border-radius: 50%;
+            border-left-color: transparent;
+            border-right-color: transparent;
+            border-bottom-color: transparent;
+        }
+
+        #mouth.closed .inner .tung {
+            display: none;
+        }
+
+        #mouth.closed .side {
+            display: block;
+        }
+
+        #mouth .inner .tung {
+            position: absolute;
+            top: 50%;
+            width: 200%;
+            left: -50%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            border: 12px solid black;
+            background-color: #ec6a8c;
+        }
+
+        #cheeks {
+            position: absolute;
+            top: 55%;
+            left: 5%;
+            width: 90%;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #cheeks .cheek {
+            width: 20%;
+            aspect-ratio: 2/1;
+            background-color: var(--color-cheeks-kirby);
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <aside id="tooltip"></aside>
+    <div id="egg-container">
+        <main id="face">
+            <section id="eyes">
+                <div class="eye"><div class="iris"><div class="pupil"></div></div></div>
+                <div class="eye"><div class="iris"><div class="pupil"></div></div></div>
+            </section>
+            <section id="cheeks">
+                <div class="cheek"></div>
+                <div class="cheek"></div>
+            </section>
+            <section id="mouth" class="closed">
+                <div class="side"></div>
+                <div class="side"></div>
+                <div class="upperlip"></div>
+                <div class="inner">
+                    <div class="tung"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const tooltip_element = document.querySelector("#tooltip");
+        const root_element = document.querySelector(":root");
+        const eyes_elements = document.querySelectorAll("#eyes .eye");
+        const mouth_element = document.querySelector("#mouth");
+        const mouth_inner_element = document.querySelector("#mouth .inner");
+        const egg_container = document.querySelector("#egg-container");
+
+        document.body.addEventListener("mousemove", (mouseevent) => {
+            const egg_rect = egg_container.getBoundingClientRect();
+            const mouse_location = [
+                Math.round(mouseevent.clientX - egg_rect.left),
+                Math.round(mouseevent.clientY - egg_rect.top)
+            ];
+            const egg_size = [egg_rect.width, egg_rect.height];
+            const position_in_percentage_from_center = [
+                Math.round((mouse_location[0] / egg_size[0] * 100 - 50) * 2),
+                Math.round((mouse_location[1] / egg_size[1] * 100 - 50) * 2)
+            ];
+
+            tooltip_element.style.left = (mouseevent.clientX + 10) + "px";
+            tooltip_element.style.top = (mouseevent.clientY - 40) + "px";
+            tooltip_element.innerText = `${position_in_percentage_from_center[0]},${position_in_percentage_from_center[1]}`;
+
+            root_element.style.setProperty("--eyes-perspective-horizontal", `${position_in_percentage_from_center[0] / 5}deg`);
+            root_element.style.setProperty("--eyes-perspective-vertical", `${position_in_percentage_from_center[1] * -1 / 5}deg`);
+
+            root_element.style.setProperty("--location-face-horizonal", `${position_in_percentage_from_center[0] / 20}%`);
+            root_element.style.setProperty("--location-iris-horizontal", `${position_in_percentage_from_center[0] / 10}%`);
+            root_element.style.setProperty("--location-pupil-horizontal", `${position_in_percentage_from_center[0] / 10}%`);
+
+            root_element.style.setProperty("--location-face-vertical", `${position_in_percentage_from_center[1] / 20}%`);
+            root_element.style.setProperty("--location-iris-vertical", `${position_in_percentage_from_center[1] / 20}%`);
+            root_element.style.setProperty("--location-pupil-vertical", `${position_in_percentage_from_center[1] / 10}%`);
+        });
+
+        navigator.mediaDevices.getUserMedia({audio: true}).then((audiostream) => {
+            const audioContext = new AudioContext();
+            const analyser = audioContext.createAnalyser();
+            const microphone = audioContext.createMediaStreamSource(audiostream);
+            const scriptProcessor = audioContext.createScriptProcessor(2048, 1, 1);
+
+            analyser.smoothingTimeConstant = 0.8;
+            analyser.fftSize = 1024;
+
+            let volume;
+
+            microphone.connect(analyser);
+            analyser.connect(scriptProcessor);
+            scriptProcessor.connect(audioContext.destination);
+
+            scriptProcessor.addEventListener("audioprocess", () => {
+                const array = new Uint8Array(analyser.frequencyBinCount);
+                analyser.getByteFrequencyData(array);
+                const arraySum = array.reduce((a, value) => a + value, 0);
+                const average = arraySum / array.length;
+                volume = Math.max(0, Math.round(average) + 10);
+
+                console.log(volume);
+
+                if (volume < 20) {
+                    mouth_element.classList.add("closed");
+                    mouth_element.classList.remove("sucking");
+                    mouth_inner_element.style.width = "";
+                } else if (volume > 50) {
+                    mouth_element.classList.add("sucking");
+                    mouth_element.classList.remove("closed");
+                    mouth_inner_element.style.width = `70%`;
+                } else {
+                    mouth_element.classList.remove("closed");
+                    mouth_element.classList.remove("sucking");
+                    mouth_inner_element.style.width = `${volume * 1.5}%`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
